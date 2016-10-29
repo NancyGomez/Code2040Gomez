@@ -7,22 +7,25 @@ token = {'token':'0b89ba5ce586dc2507ea2871fd430657',
          'github':'https://github.com/NancyGomez/Code2040Gomez'}
 
 # sending the token to the register given by the website
-req = requests.post('http://challenge.code2040.org/api/haystack', json = token)
+req = requests.post('http://challenge.code2040.org/api/prefix', json = token)
 
 # in order to access the actual values from the request, I will use the ast lib
 # function literal_eval which turns it into a dict I can access
 my_dict = ast.literal_eval(req.text)
 
-# now I need to store the actual value associated with the key 'needle'
-needle = my_dict['needle']
+# defined a function that returns true if the word does not include prefix
+def noPrefix(word):
+    # compares the beginning of the word (up to prefix's length) to the prefix
+    return (word[:len(my_dict['prefix'])] != my_dict['prefix'])
 
-# then, I need to find the index where the needle value is at in the haystack
-index = my_dict['haystack'].index(needle)
+# filtered through the elements in the list and it must not have the prefix
+# value in order for it to be added to my list
+my_list = filter(noPrefix, my_dict['array'])
 
-# Updated the dictionary with the key 'needle' and value index
-token = {'token':'0b89ba5ce586dc2507ea2871fd430657', 'needle': index}
+# updated the dictionary and add in a new keyword 'array'
+token = {'token':'0b89ba5ce586dc2507ea2871fd430657','array': my_list}
 
 # finally I send in my result and check to see if my code is correct
-req = requests.post('http://challenge.code2040.org/api/haystack/validate',
+req = requests.post('http://challenge.code2040.org/api/prefix/validate',
                      json = token)
 print(req.text)
